@@ -1,0 +1,307 @@
+ public async Task<string> CreateExchangePdf(ItemExchangeRequest itemExchangeRequest, string userId)
+        {
+            var date = DateTime.Now.ToShortDateString().ToString();
+            var dateNormilized = date.Replace("/", "_");
+            string fileName = "PDF_" + dateNormilized + "_" + DateTime.UtcNow.Millisecond + ".pdf";
+
+            string folderPath = _webHostEnvironment.WebRootPath + $"\\PDF\\{userId}\\{itemExchangeRequest.OrderUniqueIdentifier}";
+            string path = System.IO.Path.Combine(folderPath, fileName);
+
+            decimal TotalDiscountOfAllItems = 0;
+            decimal TotalPriceOfAllItems = 0;
+
+            if (!System.IO.Directory.Exists(folderPath))
+            {
+                System.IO.Directory.CreateDirectory(folderPath);
+            }
+            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(path));
+            iText.Layout.Document doc = new iText.Layout.Document(pdfDoc, PageSize.A4, true);
+            doc.SetMargins(25, 25, 25, 25);
+
+            var font = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.TIMES_ROMAN);
+            var aligmentLeft = iText.Layout.Properties.TextAlignment.LEFT;
+            var aligmentCenter = iText.Layout.Properties.TextAlignment.CENTER;
+            string imagePath = _webHostEnvironment.WebRootPath + "\\ImageForPDF\\Logo.png";
+            iText.Layout.Element.Image image = new iText.Layout.Element.Image
+                (ImageDataFactory.Create(imagePath));
+            image.SetFixedPosition(400, 700);
+            image.ScaleToFit(90, 90);
+            doc.Add(image);
+
+            //customer info
+
+            Paragraph name = new Paragraph(itemExchangeRequest.UserFirstName + " " + itemExchangeRequest.UserLastName)
+                .SetFont(font)
+                .SetFontSize(12)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(name);
+
+            Paragraph email = new Paragraph(itemExchangeRequest.UserEmail)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(email);
+
+            Paragraph street = new Paragraph(itemExchangeRequest.Street)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(street);
+
+            if (itemExchangeRequest.AppartamentNumber == null || itemExchangeRequest.AppartamentNumber == 0)
+            {
+                Paragraph addressHouseNum = new Paragraph(itemExchangeRequest.HouseNumber.ToString())
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+                doc.Add(addressHouseNum);
+            }
+            else
+            {
+                Paragraph addressHouseApp = new Paragraph(itemExchangeRequest.HouseNumber.ToString() + "-" + itemExchangeRequest.AppartamentNumber.ToString())
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+                doc.Add(addressHouseApp);
+            }
+
+            Paragraph addressCity = new Paragraph(itemExchangeRequest.City)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(addressCity);
+
+            Paragraph addressRegion = new Paragraph(itemExchangeRequest.Region)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(addressRegion);
+
+            Paragraph addressCountry = new Paragraph(itemExchangeRequest.Country)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(addressCountry);
+
+            Paragraph postalCode = new Paragraph(itemExchangeRequest.PostalCode)
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetTextAlignment(aligmentLeft)
+                .SetMarginBottom(0);
+            doc.Add(postalCode);
+
+            Paragraph busineesName = new Paragraph("My Bussines Name")
+               .SetFont(font)
+               .SetFontSize(12)
+               .SetTextAlignment(aligmentCenter)
+               .SetPaddingTop(20);
+            doc.Add(busineesName);
+
+            Paragraph orderId = new Paragraph("Invoice for order: " + itemExchangeRequest.OrderUniqueIdentifier)
+               .SetFont(font)
+               .SetFontSize(12)
+               .SetTextAlignment(aligmentCenter)
+               .SetPaddingTop(5);
+            doc.Add(orderId);
+
+            if(itemExchangeRequest.exchangedOrderItems.Count > 0)
+            {
+                Table ExchangeGoodTable = new Table(6);
+                ExchangeGoodTable.SetMarginTop(20);
+                ExchangeGoodTable.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+                ExchangeGoodTable.SetWidth(500);
+
+                //iText.Kernel.Colors
+                Color textColorTableHeadings = new DeviceRgb(255, 255, 255);
+                Color bgColorTableHeadings = new DeviceRgb(1, 1, 1);
+
+                Cell cell1 = new Cell().Add(new Paragraph("PRODUCT NAME")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell1.SetBackgroundColor(bgColorTableHeadings);
+                cell1.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell1);
+
+                Cell cell2 = new Cell().Add(new Paragraph("RETURNED PRODUCT COLOR")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell2.SetBackgroundColor(bgColorTableHeadings);
+                cell2.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell2);
+
+                Cell cell3 = new Cell().Add(new Paragraph("RETURNED PRODUCT SIZE")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell3.SetBackgroundColor(bgColorTableHeadings);
+                cell3.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell3);
+
+                Cell cell4 = new Cell().Add(new Paragraph("EXCHANGE PRODUCT COLOR")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell4.SetBackgroundColor(bgColorTableHeadings);
+                cell4.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell4);
+
+                Cell cell5 = new Cell().Add(new Paragraph("EXCHANGE PRODUCT SIZE")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell5.SetBackgroundColor(bgColorTableHeadings);
+                cell5.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell5);
+
+                Cell cell6 = new Cell().Add(new Paragraph("QUANTITY")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell6.SetBackgroundColor(bgColorTableHeadings);
+                cell6.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeGoodTable.AddCell(cell6);
+
+                foreach(var item in itemExchangeRequest.exchangedOrderItems)
+                {
+                    Cell CellProductName = new Cell().Add(new Paragraph(item.BaseProductName)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    CellProductName.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(CellProductName);
+
+                    Cell ReturnedProductColor = new Cell().Add(new Paragraph(item.ReturnedProductVariantColor)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    ReturnedProductColor.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(ReturnedProductColor);
+
+                    Cell ReturnedProductSize = new Cell().Add(new Paragraph(item.ReturnedProductVariantSize)
+                   .SetTextAlignment(aligmentCenter)
+                   .SetFontSize(8));
+                    ReturnedProductSize.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(ReturnedProductSize);
+
+                    Cell ExchangedProductColor = new Cell().Add(new Paragraph(item.ExchangedProductVariantColor)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    ExchangedProductColor.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(ExchangedProductColor);
+
+                    Cell ExchangedProductSize = new Cell().Add(new Paragraph(item.ExchangedProductVariantSize)
+                   .SetTextAlignment(aligmentCenter)
+                   .SetFontSize(8));
+                    ExchangedProductSize.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(ExchangedProductSize);
+
+                    Cell Quantity = new Cell().Add(new Paragraph(item.Quantity.ToString())
+                   .SetTextAlignment(aligmentCenter)
+                   .SetFontSize(8));
+                    Quantity.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeGoodTable.AddCell(Quantity);
+                }
+                doc.Add(ExchangeGoodTable);
+            }
+
+            //returned product which wont be refunded
+
+            if(itemExchangeRequest.exchangeItemsCanceled.Count > 0)
+            {
+                Table ExchangeBadTable = new Table(5);
+                ExchangeBadTable.SetMarginTop(20);
+                ExchangeBadTable.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+                ExchangeBadTable.SetWidth(500);
+
+                //iText.Kernel.Colors
+                Color textColorTableHeadings = new DeviceRgb(255, 255, 255);
+                Color bgColorTableHeadings = new DeviceRgb(1, 1, 1);
+
+                Cell cell1 = new Cell().Add(new Paragraph("PRODUCT NAME")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell1.SetBackgroundColor(bgColorTableHeadings);
+                cell1.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeBadTable.AddCell(cell1);
+
+                Cell cell2 = new Cell().Add(new Paragraph("RETURNED PRODUCT COLOR")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell2.SetBackgroundColor(bgColorTableHeadings);
+                cell2.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeBadTable.AddCell(cell2);
+
+                Cell cell3 = new Cell().Add(new Paragraph("RETURNED PRODUCT SIZE")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell3.SetBackgroundColor(bgColorTableHeadings);
+                cell3.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeBadTable.AddCell(cell3);
+
+                Cell cell4 = new Cell().Add(new Paragraph("QUANTITY")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell4.SetBackgroundColor(bgColorTableHeadings);
+                cell4.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                ExchangeBadTable.AddCell(cell4);
+
+                Cell cell5 = new Cell().Add(new Paragraph("NO EXCHANGE REASON")
+                .SetFontColor(textColorTableHeadings)
+                .SetFontSize(8)
+                .SetTextAlignment(aligmentCenter));
+                cell5.SetBackgroundColor(bgColorTableHeadings);
+                cell5.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+		ExchangeBadTable.AddCell(cell5);
+
+                foreach(var item in itemExchangeRequest.exchangeItemsCanceled)
+                {
+                    Cell CellProductName = new Cell().Add(new Paragraph(item.BaseProductName)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    CellProductName.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeBadTable.AddCell(CellProductName);
+
+                    Cell ReturnedProductColor = new Cell().Add(new Paragraph(item.ReturnedProductVariantColor)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    ReturnedProductColor.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeBadTable.AddCell(ReturnedProductColor);
+
+                    Cell ReturnedProductSize = new Cell().Add(new Paragraph(item.ReturnedProductVariantSize)
+                   .SetTextAlignment(aligmentCenter)
+                   .SetFontSize(8));
+                    ReturnedProductSize.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeBadTable.AddCell(ReturnedProductSize);
+
+                    Cell Quantity = new Cell().Add(new Paragraph(item.Quantity.ToString())
+                   .SetTextAlignment(aligmentCenter)
+                   .SetFontSize(8));
+                    Quantity.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeBadTable.AddCell(Quantity);
+
+                    Cell ReasonNoExchange = new Cell().Add(new Paragraph(item.CancelationReason)
+                    .SetTextAlignment(aligmentCenter)
+                    .SetFontSize(8));
+                    ReasonNoExchange.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+                    ExchangeBadTable.AddCell(ReasonNoExchange);
+                }
+
+                doc.Add(ExchangeBadTable);
+            }
+
+            doc.Close();
+
+            return path;
+        }
