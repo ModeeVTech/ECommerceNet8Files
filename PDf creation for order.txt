@@ -1,8 +1,10 @@
-var date = DateTime.Now.ToShortDateString().ToString();
+public async Task<string> CreatePdf(Order existingOrder)
+        {
+            var date = DateTime.Now.ToShortDateString().ToString();
             var dateNormilized = date.Replace("/", "_");
             string fileName = "PDF_" + dateNormilized + "_" + DateTime.UtcNow.Millisecond + ".pdf";
 
-            string folderPath = _webHostEnvironment.WebRootPath + $"\\PDF\\{exisistingOrder.UserId}\\{exisistingOrder.OrderUniqueIdentifier}";
+            string folderPath = _webHostEnvironment.WebRootPath + $"\\PDF\\{existingOrder.UserId}\\{existingOrder.OrderUniqueIdentifier}";
             string path = System.IO.Path.Combine(folderPath, fileName);
 
             decimal TotalDiscountOfAllItems = 0;
@@ -13,8 +15,8 @@ var date = DateTime.Now.ToShortDateString().ToString();
                 System.IO.Directory.CreateDirectory(folderPath);
             }
             PdfDocument pdfDoc = new PdfDocument(new PdfWriter(path));
-            iText.Layout.Document doc = new iText.Layout.Document(pdfDoc, PageSize.A4,true);
-            doc.SetMargins(25,25,25,25);
+            iText.Layout.Document doc = new iText.Layout.Document(pdfDoc, PageSize.A4, true);
+            doc.SetMargins(25, 25, 25, 25);
 
             var font = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.TIMES_ROMAN);
             var aligmentLeft = iText.Layout.Properties.TextAlignment.LEFT;
@@ -28,30 +30,30 @@ var date = DateTime.Now.ToShortDateString().ToString();
 
             //customer info
 
-            Paragraph name = new Paragraph(exisistingOrder.UsersFirstName + " " + exisistingOrder.UsersLastName)
+            Paragraph name = new Paragraph(existingOrder.UserFirstName + " " + existingOrder.UserLastName)
                 .SetFont(font)
                 .SetFontSize(12)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(name);
 
-            Paragraph email = new Paragraph(Paragraph email = new Paragraph(exisistingOrder.UsersEmail)
+            Paragraph email = new Paragraph(existingOrder.UserEmail)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(email);
 
-            Paragraph street = new Paragraph(exisistingOrder.Street)
+            Paragraph street = new Paragraph(existingOrder.Street)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(street);
 
-            if (itemExchangeRequest.AppartamentNumber == null || itemExchangeRequest.AppartamentNumber == 0)
+            if (existingOrder.AppartmentNumber == null || existingOrder.AppartmentNumber == 0)
             {
-                Paragraph addressHouseNum = new Paragraph(itemExchangeRequest.HouseNumber.ToString())
+                Paragraph addressHouseNum = new Paragraph(existingOrder.HouseNumber.ToString())
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
@@ -60,7 +62,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
             }
             else
             {
-                Paragraph addressHouseApp = new Paragraph(exisistingOrder.HouseNumber.ToString() + "-" +exisistingOrder.AppartamentNumber.ToString())
+                Paragraph addressHouseApp = new Paragraph(existingOrder.HouseNumber.ToString() + "-" + existingOrder.AppartmentNumber.ToString())
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
@@ -68,28 +70,28 @@ var date = DateTime.Now.ToShortDateString().ToString();
                 doc.Add(addressHouseApp);
             }
 
-            Paragraph addressCity = new Paragraph(exisistingOrder.City)
+            Paragraph addressCity = new Paragraph(existingOrder.City)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(addressCity);
 
-            Paragraph addressRegion = new Paragraph(exisistingOrder.Region)
+            Paragraph addressRegion = new Paragraph(existingOrder.Region)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(addressRegion);
 
-            Paragraph addressCountry = new Paragraph(exisistingOrder.Country)
+            Paragraph addressCountry = new Paragraph(existingOrder.Country)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
                 .SetMarginBottom(0);
             doc.Add(addressCountry);
 
-            Paragraph postalCode = new Paragraph(exisistingOrder.PostalCode)
+            Paragraph postalCode = new Paragraph(existingOrder.PostalCode)
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
@@ -103,7 +105,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
                .SetPaddingTop(20);
             doc.Add(busineesName);
 
-            Paragraph orderId = new Paragraph("Invoice for order: " + exisistingOrder.OrderUniqueIdentifier)
+            Paragraph orderId = new Paragraph("Invoice for order: " + existingOrder.OrderUniqueIdentifier)
                .SetFont(font)
                .SetFontSize(12)
                .SetTextAlignment(aligmentCenter)
@@ -120,7 +122,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
 
 
             //iText.Kernel.Colors
-            Color textColorTableHeadings = new DeviceRgb(255,255,255);
+            Color textColorTableHeadings = new DeviceRgb(255, 255, 255);
             Color bgColorTableHeadings = new DeviceRgb(1, 1, 1);
 
             Cell cell1 = new Cell().Add(new Paragraph("PRODUCT NAME")
@@ -180,7 +182,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
             ItemTable.AddCell(cell7);
 
 
-            foreach (var item in exisistingOrder.OriginalOrderFromCustomer.OrderItems)
+            foreach (var item in existingOrder.OriginalOrderFromCustomer.OrderItems)
             {
 
                 Cell CellProductName = new Cell().Add(new Paragraph(item.BaseProductName)
@@ -195,7 +197,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
                 CellProductColor.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
                 ItemTable.AddCell(CellProductColor);
 
-                Cell CellProductSize = new Cell().Add(new Paragraph(item.ProducVariantSize)
+                Cell CellProductSize = new Cell().Add(new Paragraph(item.ProductVariantSize)
                    .SetTextAlignment(aligmentCenter)
                    .SetFontSize(8));
                 CellProductSize.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
@@ -251,7 +253,7 @@ var date = DateTime.Now.ToShortDateString().ToString();
             cellDiscountName.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
             PriceTable.AddCell(cellDiscountName);
 
-            Cell CellDiscountValue = new Cell().Add(new Paragraph("$"+TotalDiscountOfAllItems.ToString())
+            Cell CellDiscountValue = new Cell().Add(new Paragraph("$" + TotalDiscountOfAllItems.ToString())
                    .SetTextAlignment(aligmentCenter)
                    .SetFontSize(8));
             CellDiscountValue.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
@@ -279,13 +281,13 @@ var date = DateTime.Now.ToShortDateString().ToString();
             cellShippingPriceName.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
             PriceTable.AddCell(cellShippingPriceName);
 
-            Cell CellShippingPriceValue = new Cell().Add(new Paragraph("$" + exisistingOrder.OriginalOrderFromCustomer.ShippingPrice)
+            Cell CellShippingPriceValue = new Cell().Add(new Paragraph("$" + existingOrder.OriginalOrderFromCustomer.ShippingPrice)
                    .SetTextAlignment(aligmentCenter)
                    .SetFontSize(8));
             CellDiscountValue.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
             PriceTable.AddCell(CellShippingPriceValue);
 
-            var totalPriceInCurrency = TotalPriceOfAllItems + exisistingOrder.OriginalOrderFromCustomer.ShippingPrice;
+            var totalPriceInCurrency = TotalPriceOfAllItems + existingOrder.OriginalOrderFromCustomer.ShippingPrice;
 
             Cell cellTotalPriceName = new Cell().Add(new Paragraph("TOTAL PRICE")
               .SetFontColor(textColorTableHeadings)
@@ -307,4 +309,4 @@ var date = DateTime.Now.ToShortDateString().ToString();
             doc.Close();
 
             return path;
-        }
+    }
