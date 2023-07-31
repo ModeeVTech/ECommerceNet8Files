@@ -1,4 +1,4 @@
- public async Task<string> CreateExchangePdf(ItemExchangeRequest itemExchangeRequest, string userId)
+public async Task<string> CreateExchangePdf(ItemExchangeRequest itemExchangeRequest, string userId)
         {
             var date = DateTime.Now.ToShortDateString().ToString();
             var dateNormilized = date.Replace("/", "_");
@@ -51,7 +51,7 @@
                 .SetMarginBottom(0);
             doc.Add(street);
 
-            if (itemExchangeRequest.AppartamentNumber == null || itemExchangeRequest.AppartamentNumber == 0)
+            if (itemExchangeRequest.ApartmentNumber == null || itemExchangeRequest.ApartmentNumber == 0)
             {
                 Paragraph addressHouseNum = new Paragraph(itemExchangeRequest.HouseNumber.ToString())
                 .SetFont(font)
@@ -62,7 +62,7 @@
             }
             else
             {
-                Paragraph addressHouseApp = new Paragraph(itemExchangeRequest.HouseNumber.ToString() + "-" + itemExchangeRequest.AppartamentNumber.ToString())
+                Paragraph addressHouseApp = new Paragraph(itemExchangeRequest.HouseNumber.ToString() + "-" + itemExchangeRequest.ApartmentNumber.ToString())
                 .SetFont(font)
                 .SetFontSize(14)
                 .SetTextAlignment(aligmentLeft)
@@ -112,7 +112,7 @@
                .SetPaddingTop(5);
             doc.Add(orderId);
 
-            if(itemExchangeRequest.exchangedOrderItems.Count > 0)
+            if (itemExchangeRequest.exchangeOrderItems.Count > 0)
             {
                 Table ExchangeGoodTable = new Table(6);
                 ExchangeGoodTable.SetMarginTop(20);
@@ -171,7 +171,7 @@
                 cell6.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
                 ExchangeGoodTable.AddCell(cell6);
 
-                foreach(var item in itemExchangeRequest.exchangedOrderItems)
+                foreach (var item in itemExchangeRequest.exchangeOrderItems)
                 {
                     Cell CellProductName = new Cell().Add(new Paragraph(item.BaseProductName)
                     .SetTextAlignment(aligmentCenter)
@@ -214,7 +214,7 @@
 
             //returned product which wont be refunded
 
-            if(itemExchangeRequest.exchangeItemsCanceled.Count > 0)
+            if (itemExchangeRequest.exchangeItemsCanceled.Count > 0)
             {
                 Table ExchangeBadTable = new Table(5);
                 ExchangeBadTable.SetMarginTop(20);
@@ -263,9 +263,9 @@
                 .SetTextAlignment(aligmentCenter));
                 cell5.SetBackgroundColor(bgColorTableHeadings);
                 cell5.SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
-		ExchangeBadTable.AddCell(cell5);
+                ExchangeBadTable.AddCell(cell5);
 
-                foreach(var item in itemExchangeRequest.exchangeItemsCanceled)
+                foreach (var item in itemExchangeRequest.exchangeItemsCanceled)
                 {
                     Cell CellProductName = new Cell().Add(new Paragraph(item.BaseProductName)
                     .SetTextAlignment(aligmentCenter)
