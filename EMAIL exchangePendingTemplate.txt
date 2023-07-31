@@ -1,7 +1,6 @@
-public static string ExchangePendingTempalte(ItemExchangeRequest itemExchangeRequest)
+public static string ExchangePendingTempalate(ItemExchangeRequest itemExchangeRequest)
         {
-            //Check what bool item adds
-            bool haveGoodExchange = itemExchangeRequest.exchangedOrderItems.Count > 0;
+            bool haveGoodExchange = itemExchangeRequest.exchangeOrderItems.Count > 0;
             bool haveBadExchange = itemExchangeRequest.exchangeItemsCanceled.Count > 0;
             bool havePendingExchange = itemExchangeRequest.exchangeItemsPending.Count > 0;
 
@@ -85,13 +84,13 @@ public static string ExchangePendingTempalte(ItemExchangeRequest itemExchangeReq
                     "<tr>" +
                     "<th>Returned item name</th>" +
                     "<th>Returned Item Size</th>" +
-                    "<th>Reurned Item Color</th>" +
+                    "<th>Returned Item Color</th>" +
                     "<th>Exchanged Item Size</th>" +
                     "<th>Exchange Item Color</th>" +
                     "<th>Quantity</th>" +
                     "</tr>";
                 string tableItem = "";
-                foreach (var item in itemExchangeRequest.exchangedOrderItems)
+                foreach (var item in itemExchangeRequest.exchangeOrderItems)
                 {
                     string tableItemWithInfo = "<tr>" +
                         "<td>{{ReturnedItemName}}</td>".Replace("{{ReturnedItemName}}", item.BaseProductName) +
