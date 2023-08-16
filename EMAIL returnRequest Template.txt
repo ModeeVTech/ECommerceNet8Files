@@ -1,4 +1,4 @@
-public static string RefundTemplate(ItemReturnRequest itemReturnRequest)
+ public static string RefundTemplate(ItemReturnRequest itemReturnRequest)
         {
             string firstTableString = "";
             bool haveRefundTable = itemReturnRequest.itemsGoodForRefund.Count > 0;
@@ -165,9 +165,9 @@ public static string RefundTemplate(ItemReturnRequest itemReturnRequest)
 
             string rules = "<h2>Return policy</h2>" +
                             "<ol>" +
-                            "<li>Items can be returned 14 days after recievin item</li>" +
+                            "<li>Items can be returned 14 days after receiving item</li>" +
                             "<li>Items damaged by customer wont be refunded</li>" +
-                            "<li>Items with visible wear and tear wont be regunded</li>" +
+                            "<li>Items with visible wear and tear wont be refunded</li>" +
                             "</ol>";
 
             string msgEnd = "</body></html>";
